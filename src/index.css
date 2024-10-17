@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Source Sans Pro";
+  src:
+    url("./fonts/SourceSansPro-Light.woff2") format("woff2"),
+    url("./fonts/SourceSansPro-Light.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Sans Pro";
+  src:
+    url("./fonts/SourceSansPro-Regular.woff2") format("woff2"),
+    url("./fonts/SourceSansPro-Regular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Sans Pro";
+  src:
+    url("./fonts/SourceSansPro-Bold.woff2") format("woff2"),
+    url("./fonts/SourceSansPro-Bold.woff") format("woff");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Sans Pro";
+  src:
+    url("./fonts/SourceSansPro-Semibold.woff2") format("woff2"),
+    url("./fonts/SourceSansPro-Semibold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  html {
+    @apply font-ssans;
+    @apply scroll-smooth;
+  }
+  .table-header {
+    @apply px-6 py-3 text-left text-base font-semibold uppercase tracking-wider text-gray-800;
+  }
+}
