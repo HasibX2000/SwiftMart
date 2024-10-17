@@ -18,7 +18,8 @@ export const productsApi = apiSlice.injectEndpoints({
           const { data, error } = await supabase
             .from("products")
             .select("*")
-            .eq("flash_sale", true);
+            .eq("flash_sale", true)
+            .limit(6);
 
           if (error) throw error;
           return { data };

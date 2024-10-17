@@ -6,7 +6,7 @@ import Sidebar from "../admin/Sidebar";
 import { ChevronLeft, ChevronRight } from "react-bootstrap-icons";
 import { clearCredentials } from "../../features/auth/authSlice";
 import useAuth from "../../hooks/useAuth";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
 // Define the AdminMainLayout component
 // This component serves as the main layout for the admin dashboard
@@ -125,6 +125,7 @@ export default function AdminMainLayout() {
           <Outlet />
         </main>
       </div>
+      <Toaster position="bottom-right" />
     </div>
   );
 }

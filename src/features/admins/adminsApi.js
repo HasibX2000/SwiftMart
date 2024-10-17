@@ -95,23 +95,8 @@ export const adminsApi = apiSlice.injectEndpoints({
             .range((page - 1) * limit, page * limit - 1)
             .order("product_id", { ascending: true });
 
-          if (error) {
-            toast.error(`Supabase error: ${error.message}`);
-            return {
-              error: {
-                status: error.code,
-                data: error.message,
-                details: error.details,
-              },
-            };
-          }
+          if (error) throw error;
 
-          if (!data) {
-            toast.error("No data returned from Supabase");
-            return { error: { status: 404, data: "No data found" } };
-          }
-
-          // Return formatted product data with pagination info
           return {
             data: {
               products: data,
@@ -121,12 +106,19 @@ export const adminsApi = apiSlice.injectEndpoints({
             },
           };
         } catch (error) {
-          toast.error(`Unexpected error in getProducts: ${error.message}`);
-          return {
-            error: { status: 500, data: error.message, stack: error.stack },
-          };
+          return { error: { status: 500, data: error.message } };
         }
       },
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.products.map(({ product_id }) => ({
+                type: "Product",
+                id: product_id,
+              })),
+              { type: "ProductList", id: "LIST" },
+            ]
+          : [{ type: "ProductList", id: "LIST" }],
     }),
 
     // Endpoint for deleting a product
@@ -148,6 +140,29 @@ export const adminsApi = apiSlice.injectEndpoints({
       },
     }),
 
+    // Updated endpoint for toggling flash sale status
+    toggleFlashSale: builder.mutation({
+      queryFn: async ({ id, flash_sale }) => {
+        try {
+          const { data, error } = await supabase
+            .from("products")
+            .update({ flash_sale })
+            .eq("product_id", id)
+            .select();
+
+          if (error) throw error;
+
+          return { data: data[0] };
+        } catch (error) {
+          return { error: { status: 500, data: error.message } };
+        }
+      },
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Product", id },
+        { type: "ProductList", id: "LIST" },
+      ],
+    }),
+
     // ... (other endpoints like getOrders, getOrderDetails, etc.)
   }),
 });
@@ -160,4 +175,5 @@ export const {
   useGetOrdersQuery,
   useGetAdminOrderTrackingQuery,
   useUpdateOrderStatusMutation,
+  useToggleFlashSaleMutation,
 } = adminsApi;

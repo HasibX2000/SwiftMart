@@ -97,12 +97,6 @@ export default function Dashboard() {
   // Destructure order data, providing default values if undefined
   const { orders = [], totalSpend = 0 } = orderData || {};
 
-  // Calculate the total spend manually
-  const calculatedTotalSpend = orders.reduce(
-    (sum, order) => sum + order.total_count,
-    0,
-  );
-
   // Render the Dashboard component
   return (
     <Container>
@@ -113,7 +107,58 @@ export default function Dashboard() {
           <div>
             <h2 className="mb-4 text-2xl font-semibold">Profile</h2>
             <div className="rounded-lg bg-white p-6 shadow">
-              {/* Profile content */}
+              <div className="mb-4 flex items-center">
+                <div className="relative h-20 w-20">
+                  <img
+                    src={user.avatar_url || "/default-avatar.png"}
+                    alt="Profile"
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                  <button
+                    onClick={() => fileInputRef.current.click()}
+                    className="absolute bottom-0 right-0 rounded-full bg-primary p-1 text-white"
+                    disabled={isUpdatingPicture}
+                  >
+                    <Camera size={16} />
+                  </button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleProfilePictureChange}
+                    className="hidden"
+                    accept="image/*"
+                  />
+                </div>
+                <div className="ml-4">
+                  {editingField === "name" ? (
+                    <div>
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="rounded border p-1"
+                      />
+                      <button
+                        onClick={handleSave}
+                        className="ml-2 rounded bg-primary px-2 py-1 text-white"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center">
+                      <h3 className="text-xl font-semibold">{user.name}</h3>
+                      <button
+                        onClick={() => handleEdit("name")}
+                        className="ml-2 text-gray-500"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                    </div>
+                  )}
+                  <p className="text-gray-600">{user.email}</p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -122,7 +167,11 @@ export default function Dashboard() {
             <h2 className="mb-4 text-2xl font-semibold">Total Spend</h2>
             <div className="rounded-lg bg-white p-6 shadow">
               <p className="text-3xl font-bold text-primary">
-                ${calculatedTotalSpend}
+                $
+                {totalSpend.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </p>
             </div>
           </div>
@@ -131,8 +180,44 @@ export default function Dashboard() {
         {/* Orders Section */}
         <div>
           <h2 className="mb-4 text-2xl font-semibold">All Orders</h2>
-          <div className="overflow-hidden rounded-lg bg-white shadow">
-            {/* Orders table */}
+          <div className="overflow-x-auto rounded-lg bg-white shadow">
+            <table className="w-full table-auto">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="px-4 py-2 text-left">Order ID</th>
+                  <th className="px-4 py-2 text-left">Date</th>
+                  <th className="px-4 py-2 text-left">Total</th>
+                  <th className="px-4 py-2 text-left">Status</th>
+                  <th className="px-4 py-2 text-left">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map((order) => (
+                  <tr key={order.order_id} className="border-t">
+                    <td className="px-4 py-2">{order.order_id}</td>
+                    <td className="px-4 py-2">
+                      {new Date(order.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-2">
+                      $
+                      {order.total.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </td>
+                    <td className="px-4 py-2">{order.order_state}</td>
+                    <td className="px-4 py-2">
+                      <button
+                        onClick={() => handleViewOrder(order.order_id)}
+                        className="rounded bg-primary px-3 py-1 text-white"
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

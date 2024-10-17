@@ -135,6 +135,11 @@ export default function Navbar() {
     return userRole !== "admin" && userRole !== "seller";
   };
 
+  // Add a new function to check if order tracking should be displayed
+  const shouldShowOrderTracking = () => {
+    return userRole === "buyer";
+  };
+
   return (
     <nav className="sticky top-0 z-50 border-b bg-bright shadow-sm">
       <Container>
@@ -212,11 +217,24 @@ export default function Navbar() {
                       <Link
                         to={getDashboardLink()}
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsDropdownOpen(false)}
                       >
                         Dashboard
                       </Link>
+                      {shouldShowOrderTracking() && (
+                        <Link
+                          to="/order-tracking"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsDropdownOpen(false)}
+                        >
+                          Order Tracking
+                        </Link>
+                      )}
                       <button
-                        onClick={handleLogout}
+                        onClick={() => {
+                          handleLogout();
+                          setIsDropdownOpen(false);
+                        }}
                         className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                       >
                         Logout
@@ -278,6 +296,15 @@ export default function Navbar() {
                   >
                     Dashboard
                   </Link>
+                  {shouldShowOrderTracking() && (
+                    <Link
+                      to="/order-tracking"
+                      className="block rounded-md p-2 hover:bg-gray-100"
+                      onClick={toggleMenu}
+                    >
+                      Order Tracking
+                    </Link>
+                  )}
                   {shouldShowCart() && (
                     <Link
                       to="/cart"

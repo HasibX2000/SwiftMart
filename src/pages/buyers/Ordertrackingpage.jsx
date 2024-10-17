@@ -58,7 +58,21 @@ export default function OrderTrackingPage() {
         </h1>
         {/* Order tracking form */}
         <form onSubmit={handleSubmit} className="mb-8">
-          {/* ... form input and button ... */}
+          <div className="flex">
+            <input
+              type="text"
+              value={orderNumber}
+              onChange={(e) => setOrderNumber(e.target.value)}
+              placeholder="Enter your order number"
+              className="w-full rounded-l-md border border-gray-300 px-4 py-2 focus:border-primary focus:outline-none"
+            />
+            <button
+              type="submit"
+              className="hover:bg-primary-dark rounded-r-md bg-primary px-4 py-2 text-white focus:outline-none"
+            >
+              <Search size={20} />
+            </button>
+          </div>
         </form>
         {/* Display error if user is not logged in */}
         {!isLoggedIn && <Error>Please log in to track your order.</Error>}

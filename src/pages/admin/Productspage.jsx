@@ -1,9 +1,10 @@
 // Import necessary dependencies
 import React, { useState, useEffect } from "react";
-import { Trash, Eye } from "react-bootstrap-icons";
+import { Trash, Eye, Lightning } from "react-bootstrap-icons";
 import {
   useGetProductsQuery,
   useDeleteProductMutation,
+  useToggleFlashSaleMutation,
 } from "../../features/admins/adminsApi";
 import Loading from "../../components/ui/Loading";
 import Error from "../../components/ui/Error";
@@ -32,13 +33,17 @@ export default function Productspage() {
   }, [searchTerm]);
 
   // Fetch products data using the useGetProductsQuery hook
-  const { data, isLoading, isError, error } = useGetProductsQuery({
+  const { data, isLoading, isError, error, refetch } = useGetProductsQuery({
     page: currentPage,
+    limit: 20, // Make sure this matches the limit in your API call
     searchTerm: debouncedSearchTerm,
   });
 
   // Hook for deleting a product
   const [deleteProduct] = useDeleteProductMutation();
+
+  // Hook for toggling flash sale
+  const [toggleFlashSale] = useToggleFlashSaleMutation();
 
   // Display loading component while data is being fetched
   if (isLoading) {
@@ -76,6 +81,34 @@ export default function Productspage() {
     }
   };
 
+  // Handler for toggling flash sale
+  const handleToggleFlashSale = async (id, currentStatus) => {
+    try {
+      await toggleFlashSale({ id, flash_sale: !currentStatus }).unwrap();
+      toast.success(
+        `Flash sale ${!currentStatus ? "enabled" : "disabled"} successfully`,
+        {
+          icon: !currentStatus ? "⚡" : "🚫",
+          style: {
+            borderRadius: "10px",
+            background: "#333",
+            color: "#fff",
+          },
+        },
+      );
+      // Optionally refetch the products or update the local state
+      refetch();
+    } catch (error) {
+      toast.error(`Failed to update flash sale status: ${error.message}`, {
+        style: {
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+        },
+      });
+    }
+  };
+
   // Render the products table and pagination
   return (
     <div className="container mx-auto px-4">
@@ -99,6 +132,7 @@ export default function Productspage() {
               <th className="table-header">Name</th>
               <th className="table-header">Price</th>
               <th className="table-header">Seller ID</th>
+              <th className="table-header">Flash Sale</th>
               <th className="table-header">Actions</th>
             </tr>
           </thead>
@@ -116,6 +150,30 @@ export default function Productspage() {
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
                   {product.seller_id}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4">
+                  <button
+                    onClick={() =>
+                      handleToggleFlashSale(
+                        product.product_id,
+                        product.flash_sale,
+                      )
+                    }
+                    className={`rounded px-3 py-1 ${
+                      product.flash_sale
+                        ? "bg-yellow-500 text-white"
+                        : "bg-gray-200 text-gray-700"
+                    }`}
+                  >
+                    {product.flash_sale ? (
+                      <>
+                        <Lightning className="mr-1 inline-block" />
+                        Active
+                      </>
+                    ) : (
+                      "Inactive"
+                    )}
+                  </button>
                 </td>
                 <td className="space-x-3 whitespace-nowrap px-6 py-4">
                   <button
