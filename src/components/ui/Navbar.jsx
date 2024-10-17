@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   useFetchCartItemsQuery,
   useMergeLocalCartMutation,
+  useClearCartOnLogoutMutation,
 } from "../../features/cart/cartApi";
 import Container from "./Container";
 import SiteLogo from "../../assets/_Main_Logo.png";
@@ -34,6 +35,7 @@ export default function Navbar() {
   const { isLoggedIn, userRole, userAvatar, isFirstLogin } = useAuth();
   const dropdownRef = useRef(null);
   const [mergeLocalCart] = useMergeLocalCartMutation();
+  const [clearCartOnLogout] = useClearCartOnLogoutMutation();
 
   // Calculate total number of items in the cart
   const totalCartItems = useMemo(() => {
@@ -104,12 +106,17 @@ export default function Navbar() {
   };
 
   // Handle user logout
-  const handleLogout = () => {
-    supabase.auth.signOut().then(() => {
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      await clearCartOnLogout().unwrap();
       dispatch(clearCredentials());
       toast.success("Logged out successfully");
       navigate("/");
-    });
+    } catch (error) {
+      console.error("Error during logout:", error);
+      toast.error("Failed to logout. Please try again.");
+    }
   };
 
   // Close user dropdown

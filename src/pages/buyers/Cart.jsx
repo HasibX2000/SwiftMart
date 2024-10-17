@@ -27,7 +27,7 @@ export default function Cart() {
   // Initialize hooks for state management and navigation
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isLoggedIn, isFirstLogin } = useAuth();
+  const { isLoggedIn, isFirstLogin, userRole } = useAuth();
 
   // Get cart items from Redux store for non-logged-in users
   const localCartItems = useSelector(selectCartItems);
@@ -125,10 +125,11 @@ export default function Cart() {
   // Merge local cart with database cart when user logs in for the first time
   useEffect(() => {
     const mergeCartsIfNeeded = async () => {
-      if (isLoggedIn && isFirstLogin) {
+      if (isLoggedIn && isFirstLogin && userRole === "buyer") {
         try {
           await mergeLocalCart().unwrap();
           dispatch(setFirstLoginComplete());
+          dispatch(clearLocalCart());
         } catch (error) {
           console.error("Failed to merge carts:", error);
         }
@@ -136,7 +137,7 @@ export default function Cart() {
     };
 
     mergeCartsIfNeeded();
-  }, [isLoggedIn, isFirstLogin, mergeLocalCart, dispatch]);
+  }, [isLoggedIn, isFirstLogin, mergeLocalCart, dispatch, userRole]);
 
   // Render the Cart component
   return (

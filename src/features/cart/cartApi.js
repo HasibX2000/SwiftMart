@@ -211,6 +211,18 @@ export const cartApi = apiSlice.injectEndpoints({
       },
       invalidatesTags: ["Cart"],
     }),
+
+    // New endpoint for clearing cart on logout
+    clearCartOnLogout: builder.mutation({
+      async queryFn(_, { dispatch }) {
+        try {
+          dispatch(clearLocalCart());
+          return { data: null };
+        } catch (error) {
+          return { error: "Failed to clear cart on logout" };
+        }
+      },
+    }),
   }),
 });
 
@@ -221,4 +233,5 @@ export const {
   useUpdateCartItemQuantityMutation,
   useClearCartMutation,
   useMergeLocalCartMutation,
+  useClearCartOnLogoutMutation,
 } = cartApi;

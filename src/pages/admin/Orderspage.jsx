@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { Truck } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
-import OrderTracker from "../../components/orders/OrderTracker";
 import { useGetOrdersQuery } from "../../features/admins/adminsApi";
 import AdminOrderTracker from "../../components/admin/AdminOrderTracker";
 
@@ -30,7 +29,7 @@ export default function Orderspage() {
 
   // Handler for tracking an order
   const handleTrack = (order) => {
-    setSelectedOrder(order);
+    setSelectedOrder(order.order_id);
   };
 
   // Handler for searching orders
@@ -54,7 +53,7 @@ export default function Orderspage() {
   if (isError) return <div>Error: {error.toString()}</div>;
 
   // Destructure orders and totalPages from the fetched data
-  const { orders, totalPages } = ordersData;
+  const { orders, totalPages } = ordersData || { orders: [], totalPages: 0 };
 
   // Render the orders table, search input, pagination, and order tracker
   return (
@@ -84,14 +83,18 @@ export default function Orderspage() {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {orders.map((order) => (
-              <tr key={order.id}>
-                <td className="whitespace-nowrap px-6 py-4">{order.id}</td>
-                <td className="whitespace-nowrap px-6 py-4">{order.buyerId}</td>
+              <tr key={order.order_id}>
                 <td className="whitespace-nowrap px-6 py-4">
-                  ${order.totalAmount}
+                  {order.order_id}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
-                  {order.orderDate}
+                  {order.buyer_id}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4">
+                  ${order.total_count}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4">
+                  {new Date(order.created_at).toLocaleDateString()}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
                   <button
@@ -124,7 +127,7 @@ export default function Orderspage() {
       </div>
 
       {/* Order tracker component */}
-      {selectedOrder && <AdminOrderTracker orderId={selectedOrder.id} />}
+      {selectedOrder && <AdminOrderTracker orderId={selectedOrder} />}
     </div>
   );
 }

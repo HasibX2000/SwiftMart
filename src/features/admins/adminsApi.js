@@ -163,7 +163,101 @@ export const adminsApi = apiSlice.injectEndpoints({
       ],
     }),
 
-    // ... (other endpoints like getOrders, getOrderDetails, etc.)
+    // Add the getOrders endpoint
+    getOrders: builder.query({
+      queryFn: async ({ page = 1, limit = 20, searchTerm = "" }) => {
+        try {
+          let query = supabase.from("orders").select("*", { count: "exact" });
+
+          // Apply search filter if a search term is provided
+          if (searchTerm) {
+            query = query.ilike("order_id", `%${searchTerm}%`);
+          }
+
+          // Fetch orders with pagination
+          const { data, count, error } = await query
+            .range((page - 1) * limit, page * limit - 1)
+            .order("created_at", { ascending: false });
+
+          if (error) throw error;
+
+          return {
+            data: {
+              orders: data,
+              totalCount: count || 0,
+              currentPage: page,
+              totalPages: Math.ceil((count || 0) / limit),
+            },
+          };
+        } catch (error) {
+          return { error: { status: 500, data: error.message } };
+        }
+      },
+    }),
+
+    // Updated getAdminOrderTracking endpoint
+    getAdminOrderTracking: builder.query({
+      queryFn: async (orderId) => {
+        try {
+          const { data, error } = await supabase
+            .from("orders")
+            .select(
+              `
+              order_id,
+              created_at,
+              products_id,
+              buyer_id,
+              order_state,
+              payment_method,
+              shipping_address,
+              total_count
+            `,
+            )
+            .eq("order_id", orderId)
+            .single();
+
+          if (error) throw error;
+
+          // Fetch product details separately
+          const { data: productDetails, error: productError } = await supabase
+            .from("products")
+            .select("*")
+            .in("product_id", data.products_id);
+
+          if (productError) throw productError;
+
+          return {
+            data: {
+              ...data,
+              products: productDetails,
+            },
+          };
+        } catch (error) {
+          return { error: { status: 500, data: error.message } };
+        }
+      },
+    }),
+
+    // Add the updateOrderStatus endpoint
+    updateOrderStatus: builder.mutation({
+      queryFn: async ({ orderId, newStatus }) => {
+        try {
+          const { data, error } = await supabase
+            .from("orders")
+            .update({ order_state: newStatus })
+            .eq("order_id", orderId)
+            .select();
+
+          if (error) throw error;
+
+          return { data: data[0] };
+        } catch (error) {
+          return { error: { status: 500, data: error.message } };
+        }
+      },
+    }),
+
+    // You can add more endpoints here as needed
   }),
 });
 
