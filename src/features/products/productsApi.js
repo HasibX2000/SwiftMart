@@ -19,7 +19,7 @@ export const productsApi = apiSlice.injectEndpoints({
             .from("products")
             .select("*")
             .eq("flash_sale", true)
-            .limit(6);
+            
 
           if (error) throw error;
           return { data };
