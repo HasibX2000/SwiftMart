@@ -40,6 +40,9 @@ import BuyerProtectedRoute from "./BuyerProtectedRoute";
 import SellerProtectedRoute from "./SellerProtectedRoute";
 import AdminProtectedRoute from "./AdminProtectedRoute";
 
+// Import ErrorPage component
+import ErrorPage from "../pages/error/Errorpage";
+
 // Create the router configuration
 const router = createBrowserRouter([
   // Buyer routes
@@ -187,6 +190,12 @@ const router = createBrowserRouter([
   {
     path: "/authentication",
     element: <Authentication />,
+  },
+
+  // Error page route (catch-all for unmatched routes)
+  {
+    path: "*",
+    element: <ErrorPage />,
   },
 ]);
 
