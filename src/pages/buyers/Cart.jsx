@@ -18,7 +18,7 @@ import CartItem from "../../components/buyers/CartItem";
 import Container from "../../components/ui/Container";
 import Button from "../../components/ui/Button";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { setFirstLoginComplete } from "../../features/auth/authSlice";
 
 // Define the Cart component
@@ -28,6 +28,7 @@ export default function Cart() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoggedIn, isFirstLogin, userRole } = useAuth();
+  const location = useLocation();
 
   // Get cart items from Redux store for non-logged-in users
   const localCartItems = useSelector(selectCartItems);
@@ -118,7 +119,9 @@ export default function Cart() {
       navigate("/checkout");
     } else {
       toast.error("Please log in to proceed with checkout", { icon: "🔒" });
-      navigate("/authentication", { state: { redirectTo: "/cart" } });
+      navigate("/authentication", {
+        state: { from: location.pathname },
+      });
     }
   };
 

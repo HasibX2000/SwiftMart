@@ -42,8 +42,8 @@ export default function Authentication() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get the redirect path and action from location state
-  const { from, action } = location.state || { from: "/", action: null };
+  // Get the redirect path from location state
+  const { from } = location.state || { from: "/" };
 
   // Mutation hooks for signup, signin, and merging local cart
   const [signUp] = useSignUpMutation();
@@ -90,14 +90,12 @@ export default function Authentication() {
         );
         // Merge local cart with user's cart
         await mergeLocalCart();
-        // Navigate to the appropriate page
+        
+        // Redirect to the 'from' path or default to '/'
         navigate(from);
-        if (action === "buy-now") {
-          navigate("/cart");
-        }
-        // Show success message
+        
         toast.success(
-          isLogin ? "Successfully signed in!" : "Account created successfully!",
+          isLogin ? "Successfully signed in!" : "Account created successfully!"
         );
       } else {
         // Show error message if user or session is missing
